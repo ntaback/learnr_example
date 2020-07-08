@@ -1,0 +1,505 @@
+---
+title: "STA130 - Midterm Test Review - Feb. 2018"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+library(learnr)
+library(tidyverse)
+library(nycflights13)
+library(openintro)
+knitr::opts_chunk$set(echo = FALSE)
+tutorial_options(exercise.timelimit = 20)
+```
+
+# STA130 Midterm Information
+
+Information about the midterm can be found on this <a href="https://ntaback.github.io/UofT_STA130/term_test_information.html" target="_blank"> section </a> of the course website.
+
+
+## Tidy data
+
+### Question 1
+
+A. The data below was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models).
+
+```{r}
+head(mtcars)
+```
+
+
+```{r tidy-data-q1, echo=FALSE}
+question("Is this data set tidy?", 
+         answer("yes", correct = TRUE),
+         answer("no")
+)
+```
+
+
+The following data sets display the number of TB cases documented by the World Health Organization in Afghanistan, Brazil, and China between 1999 and 2000. The data contains values associated with four variables (country, year, cases, and population), but each table organizes the values in a different layout.
+
+
+B. Examine this data set and answer the following question.
+
+```{r}
+table1
+```
+
+
+```{r tidy-data-q2, echo=FALSE}
+question("Is this data set tidy?", 
+         answer("yes", correct = TRUE),
+         answer("no")
+)
+```
+
+C. Examine this data set and answer the following question.
+
+```{r}
+table2
+```
+
+
+```{r tidy-data-q3, echo=FALSE}
+question("Is this data set tidy?", 
+         answer("yes"),
+         answer("no", correct = TRUE)
+)
+```
+
+D. Examine this data set and answer the following question.
+```{r}
+table3
+```
+
+
+```{r tidy-data-q4, echo=FALSE}
+question("Is this data set tidy?", 
+         answer("yes"),
+         answer("no", correct = TRUE)
+)
+```
+
+
+E. Examine this data set and answer the following question.
+
+```{r}
+table4a
+```
+
+```{r tidy-data-q5, echo=FALSE}
+question("Is this data set tidy?", 
+         answer("yes"),
+         answer("no", correct = TRUE)
+)
+```
+
+
+
+## Data Wrangling
+
+__You will not be asked to write code on the midterm__.  Nevertheless, you will be asked to interpret the output from data that has been wrangled.  The following questions review some basic data wrangling from the `dplyr` library that were covered in class.
+
+In these exercises you will wrangle the data sets from the `nycflights13` package. The variable in the `flights` data is shown below. For more in
+
+```{r}
+glimpse(flights)
+```
+
+A. Write R code to create a data set of flights where the carrier is UA (`carrier`) and the amount of time spent in the air (`air_time` - calculated in minutes) is three hours or less.
+
+```{r prepare-flights, exercise.setup = "prepare-flights"}
+nycflights <- nycflights13::flights
+```
+
+
+```{r, select1, exercise=TRUE, exercise.lines = 5, exercise.setup = "prepare-flights", exercise = TRUE}
+nycflights %>% 
+```
+
+```{r select1-hint-1}
+nycflights %>% filter()
+```
+
+```{r select1-solution}
+nycflights %>% filter(carrier == "UA" & air_time <= 180)
+```
+
+B. Write R code to calculate the average departure delay (`dep_delay`).
+
+```{r, calc2, exercise=TRUE, exercise.lines = 5, exercise.setup = "prepare-flights", exercise = TRUE}
+nycflights %>% 
+```
+
+```{r calc2-hint-1}
+nycflights %>% filter(is.na(dep_delay) == FALSE) %>% summarise()
+```
+
+```{r calc2-solution}
+nycflights %>% filter(is.na(dep_delay) == FALSE) %>% summarise(avg_depdelay = mean(dep_delay))
+```
+
+
+C. This question referes to the `planes` data set.  Write R code to calculate the number of planes that have a missing date (`year`) of manufacture.
+
+```{r prepare-calc1, exercise.setup = "prepare-calc1"}
+nycplanes <- nycflights13::planes
+```
+
+```{r, calc1, exercise=TRUE, exercise.lines = 5, exercise.setup = "prepare-calc1", exercise = TRUE}
+nycplanes %>% 
+```
+
+```{r calc1-hint-1}
+nycplanes %>% summarise()
+```
+
+```{r calc1-solution}
+nycplanes %>% summarize(sum(is.na(year) == TRUE))
+```
+
+
+
+D. Consider the following R code using the `planes` data.
+
+```{r, echo=TRUE, cache=TRUE}
+planes %>% 
+  filter(manufacturer == "BOEING" & (year >= 1990 | year <= 2000)) %>% 
+  summarise(n = n())
+
+planes %>% 
+  filter(manufacturer == "BOEING" & (year >= 1990 & year <= 2000)) %>% 
+  summarise(n = n())
+
+planes %>% 
+  filter(manufacturer == "BOEING" | (year >= 1990 & year <= 2000)) %>% 
+  summarise(n = n())
+
+planes %>% 
+  filter(manufacturer == "BOEING" | (year >= 1990 | year <= 2000)) %>% 
+  summarise(n = n())
+
+planes %>% 
+  filter(manufacturer == "BOEING") %>% 
+  summarise(n = n())
+```
+
+```{r interpret-1, echo=FALSE}
+x1 <- planes %>% 
+  filter(manufacturer == "BOEING" & (year >= 1990 | year <= 2000)) %>% 
+  summarise(n = n())
+
+x2 <- planes %>% 
+  filter(manufacturer == "BOEING" & (year >= 1990 & year <= 2000)) %>% 
+  summarise(n = n())
+
+x3 <- planes %>% 
+  filter(manufacturer == "BOEING" | (year >= 1990 & year <= 2000)) %>% 
+  summarise(n = n())
+
+x4 <- planes %>% 
+  filter(manufacturer == "BOEING" | (year >= 1990 | year <= 2000)) %>% 
+  summarise(n = n())
+
+x5 <- planes %>% 
+  filter(manufacturer == "BOEING") %>% 
+  summarise(n = n())
+
+quiz(caption = "Answer using output above",
+     question("How many planes did Boeing manufacture between 1990 and 2000?",
+              answer(sprintf("%s",as.numeric(x1))),
+              answer(sprintf("%s",as.numeric(x2)), correct = TRUE),
+              answer(sprintf("%s",as.numeric(x3))),
+              answer(sprintf("%s",as.numeric(x4))),
+              answer(sprintf("%s",as.numeric(x5))),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("How many planes did Boeing manufacture?",
+              answer(sprintf("%s",as.numeric(x1))),
+              answer(sprintf("%s",as.numeric(x2))),
+              answer(sprintf("%s",as.numeric(x3))),
+              answer(sprintf("%s",as.numeric(x4))),
+              answer(sprintf("%s",as.numeric(x5)), correct = TRUE),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     )
+)
+```
+
+
+## Histograms and Percentiles
+
+The US Census American Community Survey, 2012 is the data set `acs12`.  A histogram of `income` is shown below.
+
+```{r, echo=TRUE}
+acs12 %>% ggplot(aes(x = income)) + 
+  geom_histogram(fill = "grey", colour = "black", binwidth = 20000) +
+  scale_x_continuous(labels = scales::dollar)
+
+acs12 %>% 
+  summarize(n = n(), mean = mean(income, na.rm = TRUE), p60 = quantile(income, 0.6, na.rm = TRUE), p90 = quantile(income, 0.90, na.rm = TRUE))
+```
+
+```{r interpret-2, echo=FALSE}
+quiz(caption = "Answer using output above",
+     question("The shape of the histogram is:",
+              answer("Right-skewed", correct = TRUE),
+              answer("Left-skewed"),
+              answer("Bimodal"),
+              answer("Symmetric"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("The bin width of the histogram is: ",
+              answer("$23599"),
+              answer("$2000"),
+              answer("$20000", correct = TRUE),
+              answer("$500"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("The density of the histogram is shown on the y-axis: ",
+              answer("FALSE", correct = TRUE),
+              answer("TRUE"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("60% of respondents have incomes that are at least $12000",
+              answer("FALSE", correct = TRUE),
+              answer("TRUE"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("90% of respondents have incomes that are $64000 or less.",
+              answer("FALSE"),
+              answer("TRUE", correct = TRUE),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     )
+)
+```
+
+## Testing one-proportion
+
+Mendel (1822-1884) conducted experiments that resulted in the development of some fundamental laws of genetics. He formulated assumptions which gave theoretical models for how genetics work in pea plants and collected data to test the validity of his models. In one variety of pea plant, his model predicted that the plants should have purple or white flowers, determined randomly, occurring in the ratio 3 plants with purple flowers for every 1 plant with white flowers. He grew 929 plants. 705 had purple flowers and 224 had white flowers.
+
+
+```{r, echo=TRUE, cache=TRUE}
+set.seed(130)
+repetitions <- 1000
+simulated_stats <- rep(NA, repetitions) 
+n_observations <- 929 
+test_stat <- 705/929
+other_extreme <- 0.75 - (705/929 - 0.75)
+for (i in 1:repetitions) {
+  new_sim <- sample(c("purple", "white"), size = n_observations, prob = c(0.75,0.25), replace = TRUE) 
+  sim_p <- sum(new_sim == "purple") / n_observations
+  simulated_stats[i] <- sim_p
+}
+
+sim <- data_frame(p_purple = simulated_stats)
+
+ggplot(sim, aes(p_purple)) + 
+  geom_histogram(binwidth = 0.01, colour = "black", fill = "grey") +
+  geom_vline(xintercept = test_stat, color = "red") + 
+  geom_vline(xintercept = other_extreme, color = "red")
+
+sim %>% 
+  filter(p_purple >= test_stat | p_purple <= other_extreme) %>%
+  summarise(n = n(), p_value = n() / repetitions)
+```
+
+
+
+```{r pval1, echo=FALSE}
+test_stat <- 705/929
+other_extreme <- 0.75 - (705/929 - 0.75)
+
+quiz(caption = "Answer using the scenario above",
+     question("Let $p_{\\text{purple}}$ be the proportion of as the proportion of all plants that have purple flowers. In Mendel's experiment the null hypothesis is:",
+              answer("$H_0: p_{\\text{purple}}=\\frac{1}{4}$"),
+              answer("$H_0: p_{\\text{purple}}=\\frac{1}{3}$"),
+              answer("$H_0: p_{\\text{purple}}=\\frac{3}{4}$", correct = TRUE),
+              answer("$H_0: p_{\\text{purple}}=\\frac{2}{3}$"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("The value of the test statistic in this example is:",
+              answer(sprintf("$\\hat{p}=  %s$", round(test_stat,4)), correct = TRUE),
+              answer(sprintf("$\\hat{p}=  %s$", round(other_extreme,4))),
+              answer(sprintf("$\\hat{p}=  %s$", 0.25)),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("In Mendel's experiment the P-value is: ",
+              answer("524"),
+              answer("0.500"),
+              answer("0.524", correct = TRUE),
+              answer("0.010"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("The P-value implies that",
+              answer("There is no evidence against $H_0$", correct = TRUE),
+              answer("there is no evidence against $H_A$"),
+              answer("there is weak evidence against $H_0$"),
+              answer("there is moderate evidence against $H_0$"),
+              answer("there is strong evidence against $H_0$"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("The number of simulations used to calculate the P-value in this example is:",
+              answer("1000", correct = TRUE),
+              answer("130"),
+              answer("524"),
+              answer("929"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     )
+)
+```
+
+
+## Testing Two Proportions/Means
+
+The American Community survey in 2012 measured a number of characteristics of a random sample of 2000 American adults.  Suppose we are interested in mean incomes for males and females. Let $\mu_M, \mu_F$
+be the mean incomes for males and females respectively for all males and females in the US.
+
+
+```{r, echo=TRUE}
+acs12 %>% 
+  group_by(gender) %>% 
+  summarize(n = n(), mean_income = mean(income, na.rm = TRUE))
+```
+
+
+```{r, mean1, echo=FALSE}
+quiz(caption = "Choose the best answer to the following questions.",
+     question("Are $\\mu_{M}, \\mu_{F}$ parameters or statistics?",
+              answer("Parameters", correct = TRUE),
+              answer("Statistics"),
+              random_answer_order = TRUE
+     ),
+     question("The mean income for males and females are, respectively",
+              answer("$\\hat{\\mu_{M}}=32627, \\hat{\\mu_{F}}=14336$", correct = TRUE),
+              answer("$\\hat{\\mu_{F}}=32627, \\hat{\\mu_{M}}=14336$"),
+              answer("$\\hat{\\mu_{F}}=1031, \\hat{\\mu_{M}}=969$"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     )
+)
+```
+
+
+The following simulation was performed.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+test_stat <- acs12 %>% 
+  group_by(gender) %>% 
+  summarize(mean_income = mean(income, na.rm = TRUE)) %>%
+  summarize(mean_diff = diff(mean_income))
+
+test_stat <- as.numeric(test_stat)
+test_stat
+
+set.seed(130) 
+repetitions <- 900 
+simulated_stats <- rep(NA, repetitions)
+
+for (i in 1:repetitions) {
+  sim <- acs12 %>% mutate(gender = sample(gender)) 
+  
+  sim_test_stat <- sim %>% 
+    group_by(gender) %>% 
+    summarise(means = mean(income, na.rm = TRUE)) %>% 
+    summarise(sim_test_stat = diff(means, na.rm = TRUE))
+
+    simulated_stats[i] <- as.numeric(sim_test_stat) 
+}
+
+sim <- data_frame(mean_diff = simulated_stats)
+
+ggplot(sim, aes(x = mean_diff)) + 
+  geom_histogram(binwidth = 1000, colour = "black", fill = "grey") +
+  scale_x_continuous(labels = scales::dollar) 
+```
+
+
+
+```{r, mean2, echo=FALSE}
+quiz(caption = "Use the output from the simulation to answer the following questions.",
+     question("How many simulations were performed?",
+              answer("900", correct = TRUE),
+              answer("1000"),
+              answer("130"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("The P-value for testing $H_0:\\mu_{M}=\\mu_{F}$ is:",
+              answer("0", correct = TRUE),
+              answer("1"),
+              answer("0.01"),
+              answer("Need more information to calculate the P-value."),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     )
+)
+```
+
+
+
+## Confidence Intervals
+
+Consider the following simulation.
+
+```{r, echo=TRUE, cache=TRUE}
+acs12 %>% 
+  group_by(gender) %>% 
+  summarise(n = n()) %>%
+  mutate(prop = n/sum(n))
+
+N <- 2000
+M <- nrow(acs12)
+
+sim_res <- rep(NA, N) # where we'll store the bootstrap proportions
+set.seed(130)
+for (i in 1:N) {
+  boot_samp <- acs12 %>% 
+  sample_n(size = M, replace = TRUE) 
+
+sim_res[i] <- as.numeric(boot_samp %>% filter(gender == "male") %>%
+                          summarize(n()))/M
+}
+sims <- data_frame(sim_res)
+
+quantile(sims$sim_res, c(0.005, 0.995))
+quantile(sims$sim_res, c(0.025, 0.975))
+quantile(sims$sim_res, c(0.05, 0.95))
+```
+
+
+```{r, ci1, echo=FALSE}
+ci99 <- quantile(sims$sim_res, c(0.005, 0.995))
+ci95 <- quantile(sims$sim_res, c(0.025, 0.975))
+ci90 <- quantile(sims$sim_res, c(0.05, 0.95))
+
+quiz(caption = "Use the output from the simulation to answer the following questions.",
+     question("The main purpose of the simulation is to",
+              answer("Calculate bootstrap confidence intervals", correct = TRUE),
+              answer("Hypothesis testing"),
+              answer("Study how an estimate of a parameter varies from sample to sample"),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     ),
+     question("The estimate of 95% confidence interval for the proportion of males is: ",
+              answer(paste0("(",ci95[1],", ",ci95[2],")"), correct = TRUE),
+              answer(paste0("(",ci90[1],", ",ci90[2],")")),
+              answer(paste0("(",ci99[1],", ",ci99[2],")")),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+     )
+)
+```
+
